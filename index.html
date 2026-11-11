@@ -74,9 +74,9 @@ button.ghost{background:none;border:1px solid var(--line);color:var(--text);bord
 </style>
 </head>
 <body>
-<div class="banner">Demo by TaskFour. Northgloss Detailing is a fictional business; prices, times and policies are invented to show how the enquiry agent works.</div>
+<div class="banner" id="banner">Demo by TaskFour.</div>
 <header class="site">
-  <div class="logo">NORTH<span>GLOSS</span> <small style="font-family:Inter;font-weight:500;font-size:13px;color:var(--muted)">Detailing &amp; Ceramic Coating, Manchester</small></div>
+  <div class="logo"><span id="brand"></span> <small id="tagline" style="font-family:Inter;font-weight:500;font-size:13px;color:var(--muted)"></small></div>
   <nav>
     <button data-v="site" class="active">Website chat</button>
     <button data-v="email">Email enquiry</button>
@@ -89,12 +89,12 @@ button.ghost{background:none;border:1px solid var(--line);color:var(--text);bord
   <section class="view active" id="v-site">
     <div class="hero">
       <div>
-        <h1>Showroom finish. Booked in seconds, even at 10pm.</h1>
-        <p class="lead">This is how a detailing studio's website looks with the enquiry agent switched on. Ask it anything a customer would: prices, availability, what's included, whether your car needs a correction first. It checks the diary, takes the booking request and hands the owner a ready summary.</p>
+        <h1 id="heroTitle">Enquiries answered in seconds, even at 10pm.</h1>
+        <p class="lead" id="heroText"></p>
         <div class="cards" id="svcCards"></div>
       </div>
       <div class="chat">
-        <div class="chat-head"><div class="dot"></div><div><b>Northgloss enquiries</b><small>Usually replies instantly</small></div></div>
+        <div class="chat-head"><div class="dot"></div><div><b id="chatName">Enquiries</b><small>Usually replies instantly</small></div></div>
         <div class="msgs" id="msgs"></div>
         <div class="chips" id="chips"></div>
         <div class="composer">
@@ -110,12 +110,13 @@ button.ghost{background:none;border:1px solid var(--line);color:var(--text);bord
     <div class="email-grid">
       <div class="pane">
         <h2>Incoming enquiry</h2>
-        <label>From</label><input id="eFrom" value="Dan Whitworth &lt;dan.whitworth@example.com&gt;">
-        <label>Subject</label><input id="eSubj" value="Ceramic coating price?">
+        <label>From</label><input id="eFrom" value="Alex Morgan &lt;alex.morgan@example.com&gt;">
+        <label>Subject</label><input id="eSubj" value="Price and availability">
         <label>Message</label>
-        <textarea class="big" id="eBody">Hi, how much would it be to ceramic coat a 2022 BMW 3 Series? It's black and has a few swirl marks. Could you fit me in next week, ideally Thursday? I'm in Sale.
-Cheers
-Dan</textarea>
+        <textarea class="big" id="eBody">Hi, could you tell me your prices and whether you have anything available next week?
+
+Thanks
+Alex</textarea>
         <div class="row">
           <button class="primary" id="eGo" style="padding:10px 18px">Draft reply</button>
           <button class="ghost" id="eEx">Try another example</button>
@@ -139,7 +140,7 @@ Dan</textarea>
 <script>
 /* ---------- Backend ---------- */
 const API="https://nxztjqmzpubugfstycrk.supabase.co/functions/v1/agent-chat";
-const SLUG=new URLSearchParams(location.search).get("b")||"northgloss";
+const SLUG=new URLSearchParams(location.search).get("b")||"clearwell";
 const SESSION=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2));
 let BIZ=null;
 function notice(t){const n=document.getElementById("notice");n.textContent=t;n.style.display=t?"block":"none";}
@@ -159,7 +160,7 @@ function renderLeads(list){
   if(!list.length){el.innerHTML='<div class="empty">No leads yet. Try the website chat or the email enquiry.</div>';return;}
   el.innerHTML=list.map(l=>{
     const esc=l.kind==="escalation";const d=l.details||{};
-    const f=esc?{"Contact":l.contact,"Summary":d.summary,"Urgency":d.urgency}:{"Vehicle":d.vehicle,"Contact":l.contact,"Area":d.location,"Preferred day":d.preferred_day,"Drop off":d.drop_off,"Price given":d.quoted_price,"For the team":d.notes_for_team};
+    const f=esc?{"Contact":l.contact,"Summary":d.summary,"Urgency":d.urgency}:{"Job":d.job_details,"Vehicle":d.vehicle,"Contact":l.contact,"Area":d.location,"Preferred day":d.preferred_day,"Slot":d.drop_off,"Price given":d.quoted_price,"For the team":d.notes_for_team};
     const rows=Object.entries(f).filter(([k,v])=>v).map(([k,v])=>`<dt>${h(k)}</dt><dd>${h(v)}</dd>`).join("");
     const title=esc?`${l.customer_name||"Customer"}: needs the team`:`${l.customer_name}: ${d.service||"Booking"}`;
     const at=new Date(l.created_at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
@@ -168,14 +169,27 @@ function renderLeads(list){
 }
 function actionChips(actions,where){ (actions||[]).forEach(t=>{ if(where==="chat"){const d=document.createElement("div");d.className="tool";d.textContent="✓ "+t;msgs.appendChild(d);} else {eMeta.textContent+="  ✓ "+t;} }); if((actions||[]).some(a=>/team/.test(a))) loadLeads(); }
 
+
+function applyUI(d){
+  const u=d.ui||{};
+  const name=d.business_name;
+  document.title=name+" | Enquiry Agent Demo | TaskFour";
+  document.getElementById("brand").textContent=u.brand||name.toUpperCase();
+  document.getElementById("tagline").textContent=u.tagline||d.area||"";
+  document.getElementById("banner").textContent=u.banner||("Demo by TaskFour, prepared for "+name+" using information from its website. Prices and availability shown are examples.");
+  if(u.hero_title) document.getElementById("heroTitle").textContent=u.hero_title;
+  document.getElementById("heroText").textContent=u.hero_text||("This is how "+name+"'s website could look with an enquiry assistant answering customers instantly, using its own services and prices. Ask it what a customer would.");
+  document.getElementById("chatName").textContent=name+" enquiries";
+  bubble("a",u.greeting||("Hello, thank you for getting in touch with "+name+". How can we help today?"));
+  setChips(u.chips||["What are your prices?","Do you cover my area?","Have you anything free next week?"]);
+  if(u.email_examples&&u.email_examples.length){EX=u.email_examples;exI=1;const x=EX[0];eFrom.value=x.f;eSubj.value=x.s;eBody.value=x.b;}
+}
+
 /* ---------- Chat ---------- */
 const msgs=document.getElementById("msgs"),inp=document.getElementById("inp"),sendBtn=document.getElementById("send");
 const history=[];
 function bubble(cls,text){const d=document.createElement("div");d.className="m "+cls;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
-bubble("a","Hello, thank you for getting in touch with Northgloss Detailing. How can we help today?");
-const examples=["How much is a ceramic coating on a black Golf?","Can you come to me in Stockport for a valet?","Can you fix a dent in my door?","Do you have anything free next week for a full correction?","You left swirl marks on my car last week and I'm not happy"];
-document.getElementById("chips").innerHTML=examples.map(e=>`<button>${h(e)}</button>`).join("");
-document.querySelectorAll("#chips button").forEach(b=>b.onclick=()=>{inp.value=b.textContent;send();});
+function setChips(examples){document.getElementById("chips").innerHTML=examples.map(e=>`<button>${h(e)}</button>`).join("");document.querySelectorAll("#chips button").forEach(b=>b.onclick=()=>{inp.value=b.textContent;send();});}
 async function send(){
   const t=inp.value.trim(); if(!t||sendBtn.disabled)return;
   inp.value="";bubble("u",t);history.push({role:"user",content:t});
@@ -193,11 +207,7 @@ sendBtn.onclick=send;
 inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 
 /* ---------- Email ---------- */
-const EX=[
-  {f:"Priya Shah <priya.s@example.com>",s:"Dog hair nightmare",b:"Hello\n\nWe've got a 2019 Volvo XC90 and two Labradors. The back seats and boot are covered in hair and it smells a bit. What would you recommend and roughly how much? Are you open Saturdays?\n\nPriya"},
-  {f:"mike.t1985@example.com",s:"scratches",b:"got a deep scratch down the side of my audi a4 where someone keyed it, can you polish it out? also how much for a full valet"},
-  {f:"Laura Bennett <laura@example.com>",s:"Unhappy with coating",b:"I had my Tesla ceramic coated with you three weeks ago and there are already water spots that won't come off. I paid £895 for this. I want it sorted or a refund.\n\nLaura Bennett\n07700 900123"}
-];
+let EX=[{f:"Alex Morgan <alex.morgan@example.com>",s:"Price and availability",b:"Hi, could you tell me your prices and whether you have anything available next week?\n\nThanks\nAlex"}];
 let exI=0;
 document.getElementById("eEx").onclick=()=>{const x=EX[exI++%EX.length];eFrom.value=x.f;eSubj.value=x.s;eBody.value=x.b;eOut.textContent="";eMeta.textContent="Reply will appear here.";};
 document.getElementById("eGo").onclick=async()=>{
@@ -215,7 +225,7 @@ document.getElementById("eGo").onclick=async()=>{
 document.getElementById("eCopy").onclick=async()=>{try{await navigator.clipboard.writeText(eOut.textContent);}catch(e){}};
 
 /* ---------- Service cards & nav ---------- */
-fetch(API+"?slug="+encodeURIComponent(SLUG)).then(r=>r.json()).then(d=>{ if(!d.services){notice("This demo isn't available.");return;} BIZ=d;
+fetch(API+"?slug="+encodeURIComponent(SLUG)).then(r=>r.json()).then(d=>{ if(!d.services){notice("This demo isn't available.");return;} BIZ=d; applyUI(d);
   document.getElementById("svcCards").innerHTML=d.services.slice(0,4).map(s=>`<div class="card"><h3>${h(s.name)}</h3><div class="p">${h(s.price.split(",")[0].split(" (")[0])}</div><small>${h(s.time)}</small></div>`).join("");
 }).catch(()=>notice("The demo couldn't load. Please refresh."));
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{ if(b.dataset.v==="inbox") loadLeads();
