@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enquiry Agent Demo | TaskFour</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1115;--panel:#171a21;--panel2:#1f232c;--line:#2a2f3a;--text:#e9ecf1;--muted:#9aa3b2;
+  --accent:#4fd1c5;--accent2:#2bb3a7;--warn:#f6ad55;--ok:#68d391;--user:#2b3445;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.5}
+a{color:var(--accent)}
+.banner{background:#1b2a2a;border-bottom:1px solid #24413f;color:#bfeeea;font-size:13px;padding:8px 16px;text-align:center}
+header.site{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid var(--line)}
+.logo{font-family:"Space Grotesk";font-weight:700;font-size:22px;letter-spacing:.5px}
+.logo span{color:var(--accent)}
+nav button{background:none;border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:999px;margin-left:8px;cursor:pointer;font:inherit;font-size:14px}
+nav button.active{background:var(--accent);color:#06221f;border-color:var(--accent);font-weight:600}
+main{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+.view{display:none}.view.active{display:block}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
+.hero h1{font-family:"Space Grotesk";font-size:38px;line-height:1.1;margin:6px 0 12px}
+.hero p.lead{color:var(--muted);font-size:17px;max-width:520px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h3{margin:0 0 4px;font-size:15px}.card .p{color:var(--accent);font-weight:600}
+.card small{color:var(--muted)}
+/* chat */
+.chat{background:var(--panel);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;height:620px;overflow:hidden}
+.chat-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.chat-head b{display:block}.chat-head small{color:var(--muted)}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:85%;padding:10px 13px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}
+.m.a{background:var(--panel2);align-self:flex-start;border-bottom-left-radius:4px}
+.m.u{background:var(--user);align-self:flex-end;border-bottom-right-radius:4px}
+.m.sys{align-self:center;background:none;color:var(--muted);font-size:12px;padding:2px}
+.tool{align-self:flex-start;font-size:12px;color:var(--accent);background:#132726;border:1px solid #1f4744;border-radius:999px;padding:3px 10px}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.composer textarea{flex:1;resize:none;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px;font:inherit;height:46px}
+button.primary{background:var(--accent);color:#06221f;border:none;border-radius:12px;padding:0 18px;font-weight:700;cursor:pointer;font:inherit;font-weight:700}
+button.primary:disabled{opacity:.5;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px}
+.chips button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 10px;font-size:12.5px;cursor:pointer;font:inherit;font-size:12.5px}
+.chips button:hover{color:var(--text);border-color:var(--accent)}
+/* email */
+.email-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.pane h2{font-family:"Space Grotesk";font-size:19px;margin:0 0 10px}
+label{display:block;color:var(--muted);font-size:13px;margin:10px 0 4px}
+input,textarea.big{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px;font:inherit}
+textarea.big{height:220px;resize:vertical}
+.emailout{white-space:pre-wrap;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;min-height:300px}
+.meta{color:var(--muted);font-size:13px;margin-bottom:8px}
+.row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+button.ghost{background:none;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 14px;cursor:pointer;font:inherit;font-size:14px}
+/* inbox */
+.lead{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.lead.esc{border-left-color:var(--warn)}
+.lead h3{margin:0 0 6px;font-size:16px}
+.lead dl{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;margin:8px 0 0}
+.lead dt{color:var(--muted)}.lead dd{margin:0}
+.tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:#132726;color:var(--accent);margin-left:6px}
+.tag.w{background:#33260f;color:var(--warn)}
+.empty{color:var(--muted);padding:30px;text-align:center;border:1px dashed var(--line);border-radius:14px}
+.how{color:var(--muted);font-size:14px;margin-bottom:16px;max-width:760px}
+.notice{background:#2a1f12;border:1px solid #5a4020;color:#f8d6a8;border-radius:12px;padding:12px 14px;margin:12px 0;display:none}
+@media(max-width:860px){.hero,.email-grid{grid-template-columns:1fr}.chat{height:560px}.hero h1{font-size:30px}header.site{flex-direction:column;gap:10px}}
+</style>
+</head>
+<body>
+<div class="banner">Demo by TaskFour. Northgloss Detailing is a fictional business; prices, times and policies are invented to show how the enquiry agent works.</div>
+<header class="site">
+  <div class="logo">NORTH<span>GLOSS</span> <small style="font-family:Inter;font-weight:500;font-size:13px;color:var(--muted)">Detailing &amp; Ceramic Coating, Manchester</small></div>
+  <nav>
+    <button data-v="site" class="active">Website chat</button>
+    <button data-v="email">Email enquiry</button>
+    <button data-v="inbox">Owner inbox <span id="inboxCount"></span></button>
+  </nav>
+</header>
+<main>
+  <div class="notice" id="notice"></div>
+
+  <section class="view active" id="v-site">
+    <div class="hero">
+      <div>
+        <h1>Showroom finish. Booked in seconds, even at 10pm.</h1>
+        <p class="lead">This is how a detailing studio's website looks with the enquiry agent switched on. Ask it anything a customer would: prices, availability, what's included, whether your car needs a correction first. It checks the diary, takes the booking request and hands the owner a ready summary.</p>
+        <div class="cards" id="svcCards"></div>
+      </div>
+      <div class="chat">
+        <div class="chat-head"><div class="dot"></div><div><b>Northgloss enquiries</b><small>Usually replies instantly</small></div></div>
+        <div class="msgs" id="msgs"></div>
+        <div class="chips" id="chips"></div>
+        <div class="composer">
+          <textarea id="inp" placeholder="Type a message…"></textarea>
+          <button class="primary" id="send">Send</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-email">
+    <p class="how">Most enquiries to small studios arrive by email or the contact form, often in the evening. Paste or write one below and the agent drafts the reply it would send, in the studio's voice, after checking the diary.</p>
+    <div class="email-grid">
+      <div class="pane">
+        <h2>Incoming enquiry</h2>
+        <label>From</label><input id="eFrom" value="Dan Whitworth &lt;dan.whitworth@example.com&gt;">
+        <label>Subject</label><input id="eSubj" value="Ceramic coating price?">
+        <label>Message</label>
+        <textarea class="big" id="eBody">Hi, how much would it be to ceramic coat a 2022 BMW 3 Series? It's black and has a few swirl marks. Could you fit me in next week, ideally Thursday? I'm in Sale.
+Cheers
+Dan</textarea>
+        <div class="row">
+          <button class="primary" id="eGo" style="padding:10px 18px">Draft reply</button>
+          <button class="ghost" id="eEx">Try another example</button>
+        </div>
+      </div>
+      <div class="pane">
+        <h2>Agent reply</h2>
+        <div class="meta" id="eMeta">Reply will appear here.</div>
+        <div class="emailout" id="eOut"></div>
+        <div class="row"><button class="ghost" id="eCopy">Copy reply</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-inbox">
+    <p class="how">What the owner sees. Every enquiry the agent handles lands here as a short summary: who, what car, what they want, when, and anything the owner needs to decide. Complaints and anything the agent should not answer are flagged for a human.</p>
+    <div id="leads"><div class="empty">No leads yet. Try the website chat or the email enquiry.</div></div>
+  </section>
+</main>
+
+<script>
+/* ---------- Backend ---------- */
+const API="https://nxztjqmzpubugfstycrk.supabase.co/functions/v1/agent-chat";
+const SLUG=new URLSearchParams(location.search).get("b")||"northgloss";
+const SESSION=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2));
+let BIZ=null;
+function notice(t){const n=document.getElementById("notice");n.textContent=t;n.style.display=t?"block":"none";}
+function h(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+async function ask(messages,channel){
+  const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({slug:SLUG,channel,session_id:SESSION,messages})});
+  const d=await r.json().catch(()=>({}));
+  if(!d.reply) throw {code:r.status===429?"rate_limited":"error"};
+  return d;
+}
+async function loadLeads(){
+  try{const r=await fetch(API+"?slug="+encodeURIComponent(SLUG)+"&leads="+SESSION);const d=await r.json();renderLeads(d.leads||[]);}catch(e){}
+}
+function renderLeads(list){
+  const el=document.getElementById("leads");
+  document.getElementById("inboxCount").textContent=list.length?"("+list.length+")":"";
+  if(!list.length){el.innerHTML='<div class="empty">No leads yet. Try the website chat or the email enquiry.</div>';return;}
+  el.innerHTML=list.map(l=>{
+    const esc=l.kind==="escalation";const d=l.details||{};
+    const f=esc?{"Contact":l.contact,"Summary":d.summary,"Urgency":d.urgency}:{"Vehicle":d.vehicle,"Contact":l.contact,"Area":d.location,"Preferred day":d.preferred_day,"Drop off":d.drop_off,"Price given":d.quoted_price,"For the team":d.notes_for_team};
+    const rows=Object.entries(f).filter(([k,v])=>v).map(([k,v])=>`<dt>${h(k)}</dt><dd>${h(v)}</dd>`).join("");
+    const title=esc?`${l.customer_name||"Customer"}: needs the team`:`${l.customer_name}: ${d.service||"Booking"}`;
+    const at=new Date(l.created_at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+    return `<div class="lead ${esc?"esc":""}"><h3>${h(title)} <span class="tag ${esc?"w":""}">${esc?"Needs the team":"Booking request"}</span> <span class="tag">${l.channel==="email"?"Email":"Website chat"}</span></h3><small style="color:var(--muted)">Received ${at}</small><dl>${rows}</dl></div>`;
+  }).join("");
+}
+function actionChips(actions,where){ (actions||[]).forEach(t=>{ if(where==="chat"){const d=document.createElement("div");d.className="tool";d.textContent="✓ "+t;msgs.appendChild(d);} else {eMeta.textContent+="  ✓ "+t;} }); if((actions||[]).some(a=>/team/.test(a))) loadLeads(); }
+
+/* ---------- Chat ---------- */
+const msgs=document.getElementById("msgs"),inp=document.getElementById("inp"),sendBtn=document.getElementById("send");
+const history=[];
+function bubble(cls,text){const d=document.createElement("div");d.className="m "+cls;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
+bubble("a","Hello, thank you for getting in touch with Northgloss Detailing. How can we help today?");
+const examples=["How much is a ceramic coating on a black Golf?","Can you come to me in Stockport for a valet?","Can you fix a dent in my door?","Do you have anything free next week for a full correction?","You left swirl marks on my car last week and I'm not happy"];
+document.getElementById("chips").innerHTML=examples.map(e=>`<button>${h(e)}</button>`).join("");
+document.querySelectorAll("#chips button").forEach(b=>b.onclick=()=>{inp.value=b.textContent;send();});
+async function send(){
+  const t=inp.value.trim(); if(!t||sendBtn.disabled)return;
+  inp.value="";bubble("u",t);history.push({role:"user",content:t});
+  sendBtn.disabled=true;currentChannel="Website chat";
+  const b=bubble("a","Typing…");
+  try{
+    const r=await ask(history,"chat");
+    actionChips(r.actions,"chat");
+    b.textContent=r.reply;history.push({role:"assistant",content:r.reply});
+    msgs.appendChild(b); msgs.scrollTop=msgs.scrollHeight;
+  }catch(e){ b.textContent = e&&e.code==="rate_limited"?"We are receiving a lot of messages right now. Please try again shortly.":"Sorry, something went wrong there. Please try again."; history.pop(); }
+  sendBtn.disabled=false;inp.focus();
+}
+sendBtn.onclick=send;
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+
+/* ---------- Email ---------- */
+const EX=[
+  {f:"Priya Shah <priya.s@example.com>",s:"Dog hair nightmare",b:"Hello\n\nWe've got a 2019 Volvo XC90 and two Labradors. The back seats and boot are covered in hair and it smells a bit. What would you recommend and roughly how much? Are you open Saturdays?\n\nPriya"},
+  {f:"mike.t1985@example.com",s:"scratches",b:"got a deep scratch down the side of my audi a4 where someone keyed it, can you polish it out? also how much for a full valet"},
+  {f:"Laura Bennett <laura@example.com>",s:"Unhappy with coating",b:"I had my Tesla ceramic coated with you three weeks ago and there are already water spots that won't come off. I paid £895 for this. I want it sorted or a refund.\n\nLaura Bennett\n07700 900123"}
+];
+let exI=0;
+document.getElementById("eEx").onclick=()=>{const x=EX[exI++%EX.length];eFrom.value=x.f;eSubj.value=x.s;eBody.value=x.b;eOut.textContent="";eMeta.textContent="Reply will appear here.";};
+document.getElementById("eGo").onclick=async()=>{
+  const btn=document.getElementById("eGo");btn.disabled=true;currentChannel="Email";
+  eMeta.textContent="Re: "+eSubj.value+"  ·  drafting…";eOut.textContent="";
+  const t0=performance.now();
+  try{
+    const r=await ask([{role:"user",content:`From: ${eFrom.value}\nSubject: ${eSubj.value}\n\n${eBody.value}`}],"email");
+    eOut.textContent=r.reply;
+    eMeta.textContent=eMeta.textContent.replace("drafting…","drafted in "+Math.round((performance.now()-t0)/1000)+" seconds");
+    actionChips(r.actions,"email");
+  }catch(e){eOut.textContent="Sorry, that didn't work. Please try again.";}
+  btn.disabled=false;
+};
+document.getElementById("eCopy").onclick=async()=>{try{await navigator.clipboard.writeText(eOut.textContent);}catch(e){}};
+
+/* ---------- Service cards & nav ---------- */
+fetch(API+"?slug="+encodeURIComponent(SLUG)).then(r=>r.json()).then(d=>{ if(!d.services){notice("This demo isn't available.");return;} BIZ=d;
+  document.getElementById("svcCards").innerHTML=d.services.slice(0,4).map(s=>`<div class="card"><h3>${h(s.name)}</h3><div class="p">${h(s.price.split(",")[0].split(" (")[0])}</div><small>${h(s.time)}</small></div>`).join("");
+}).catch(()=>notice("The demo couldn't load. Please refresh."));
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{ if(b.dataset.v==="inbox") loadLeads();
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="v-"+b.dataset.v));
+});
+const eFrom=document.getElementById("eFrom"),eSubj=document.getElementById("eSubj"),eBody=document.getElementById("eBody"),eOut=document.getElementById("eOut"),eMeta=document.getElementById("eMeta");
+
+</script>
+</body>
+</html>
